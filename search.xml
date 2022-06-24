@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title>关于事件循环</title>
+      <link href="/2022/06/24/guan-yu-shi-jian-xun-huan/"/>
+      <url>/2022/06/24/guan-yu-shi-jian-xun-huan/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr><p>​在准备面试的时候，我开始了解之前不曾了解的东西，事件循环Event Loop就是其中之一，也是之前了解一点，但是很菜，可望不可及的知识，在面试的动力下，还是稍微仔细了解了一下。就只是稍微，懂得不太多，面试能通过的程度。</p><p>​在看了一些文章之后，发现很多都是看起来很高大上的文章，我这种小菜鸡，是看不懂的。我懂了浏览器的事件循环，但是不懂node的事件循环，两者的事件循环机制是不一样的。node改版后对事件循环机制也进行了改变，就给我弄懵了，明白之后，写个小总结。</p><h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr><h3 id="先来说下事件循环Event-Loop是个什么东西"><a href="#先来说下事件循环Event-Loop是个什么东西" class="headerlink" title="先来说下事件循环Event Loop是个什么东西"></a>先来说下事件循环Event Loop是个什么东西</h3><h4 id="大白话来说：就是js里函数执行的模型。"><a href="#大白话来说：就是js里函数执行的模型。" class="headerlink" title="大白话来说：就是js里函数执行的模型。"></a>大白话来说：就是js里函数执行的模型。</h4><p>模型？什么意思？ 用更简单的话讲，就是规矩，这个函数执行完了，下一步做啥，下下步做什么？就这个的东西。（以我当前的理解就是这样，理解不深，勿cue）</p><h3 id="那为什么会有这种很难理解的东西呢？"><a href="#那为什么会有这种很难理解的东西呢？" class="headerlink" title="那为什么会有这种很难理解的东西呢？"></a>那为什么会有这种很难理解的东西呢？</h3><p>​JS代码呢，由JS引擎线程负责，通常就将这个东西叫做JS主线程，它是单线程运行的。单线程啥意思？一根筋！所有的JS代码都是这一个线程负责解释执行，运行过程中，如果遇到费时的操作，就卡在这不往后执行，直到这个费时的的操作完成，才能继续进行。（就行在等待游戏载入的时候。你不可以刷抖音或者看小说或者干别的，就要等游戏加载）。</p><p>​简直太傻逼了对吧？于是呢，为了提升单线程执行的效率，JS引擎在解释执行的时候，就把JS代码分成了两类：</p><p>​1.同步任务</p><p>​2.异步任务</p><p>​同步任务？异步任务？ </p><p>​同步任务就是JS代码，就算JS代码运行非常非常的费时，就是同步任务，就要等着！！比如：</p><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">let</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">&lt;</span> <span class="token number">1000000000000</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'我是第'</span> <span class="token operator">+</span> i<span class="token punctuation">)</span> <span class="token punctuation">&#125;</span>console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'终于轮到我了'</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><p>​这个东西，就要输出玩所有的之后，才能轮到下面的那行。</p><p>​异步任务呢，这个东西就很聪明，为什么说他聪明呢？比如setTImeout会开启一个异步任务，进行计时等待，等待时间呢，代码不会傻等，会继续向下执行，时间到了，加入异步任务队列等待执行。</p><p><img src="/images/1.jpg" alt="1"></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>test  title</title>
       <link href="/2022/06/19/article-title/"/>
       <url>/2022/06/19/article-title/</url>
