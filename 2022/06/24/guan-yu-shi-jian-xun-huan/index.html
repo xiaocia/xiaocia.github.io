@@ -407,7 +407,7 @@
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><hr>
 <h3 id="先来说下事件循环Event-Loop是个什么东西"><a href="#先来说下事件循环Event-Loop是个什么东西" class="headerlink" title="先来说下事件循环Event Loop是个什么东西"></a>先来说下事件循环Event Loop是个什么东西</h3><h4 id="大白话来说：就是js里函数执行的模型。"><a href="#大白话来说：就是js里函数执行的模型。" class="headerlink" title="大白话来说：就是js里函数执行的模型。"></a>大白话来说：就是js里函数执行的模型。</h4><p>模型？什么意思？ 用更简单的话讲，就是规矩，这个函数执行完了，下一步做啥，下下步做什么？就这个的东西。（以我当前的理解就是这样，理解不深，勿cue）</p>
 <h3 id="那为什么会有这种很难理解的东西呢？"><a href="#那为什么会有这种很难理解的东西呢？" class="headerlink" title="那为什么会有这种很难理解的东西呢？"></a>那为什么会有这种很难理解的东西呢？</h3><p>​		JS代码呢，由JS引擎线程负责，通常就将这个东西叫做JS主线程，它是单线程运行的。单线程啥意思？一根筋！所有的JS代码都是这一个线程负责解释执行，运行过程中，如果遇到费时的操作，就卡在这不往后执行，直到这个费时的的操作完成，才能继续进行。（就行在等待游戏载入的时候。你不可以刷抖音或者看小说或者干别的，就要等游戏加载）。</p>
-<p>​		简直太傻逼了对吧？于是呢，为了提升单线程执行的效率，JS引擎在解释执行的时候，就把JS代码分成了两类：</p>
+<h4 id="就是为了提升单线程执行的效率"><a href="#就是为了提升单线程执行的效率" class="headerlink" title="就是为了提升单线程执行的效率"></a>就是为了提升单线程执行的效率</h4><h3 id="宏任务（macrotask）和微任务（microtask）"><a href="#宏任务（macrotask）和微任务（microtask）" class="headerlink" title="宏任务（macrotask）和微任务（microtask）"></a>宏任务（macrotask）和微任务（microtask）</h3><p>​		简直太傻逼了对吧？于是呢，为了提升单线程执行的效率，JS引擎在解释执行的时候，就把JS代码分成了两类：</p>
 <p>​		1.同步任务</p>
 <p>​		2.异步任务</p>
 <p>​		同步任务？异步任务？ </p>
@@ -417,7 +417,95 @@ console<span class="token punctuation">.</span><span class="token function">log<
 
 <p>​		这个东西，就要输出玩所有的之后，才能轮到下面的那行。</p>
 <p>​		异步任务呢，这个东西就很聪明，为什么说他聪明呢？比如setTImeout会开启一个异步任务，进行计时等待，等待时间呢，代码不会傻等，会继续向下执行，时间到了，加入异步任务队列等待执行。</p>
-<p><img src="/images/1.jpg" alt="1"></p>
+<h3 id="浏览器中的事件循环"><a href="#浏览器中的事件循环" class="headerlink" title="浏览器中的事件循环"></a>浏览器中的事件循环</h3><p><img src="/images/1.jpg" alt="1"></p>
+<p>（上图请忽略后面的1）</p>
+<p>​		js代码执行到setTImeout这一行的时候呢，就会把这个推到执行栈里面，然后js引擎识别为异步任务，会把这个玩意交给webAPIs处理，就是给浏览器处理！让浏览器开启一个定时器线程，注意注意注意！js是单线程，但是浏览器不是，浏览器主要有5大线程，就不展开说，明白交给浏览器处理，就行了！</p>
+<p>​		这是一个，下面的console.log(456),入栈，识别是同步代码，马上就执行，然后下面的那个，入栈，识别是异步的，开启新的计时器线程，变成了这样：<br><img src="/images/2.png" alt="1"></p>
+<p>等1秒过后，计时器2到时间了，就把输出123这个函数，加入到宏任务中：</p>
+<p><img src="/images/3.png" alt="1"></p>
+<p>监测到宏任务队列有任务了，推入执行栈，执行。输出123。</p>
+<p>等1秒后，计时器1到时间了，把输出123这个函数，加入宏任务：</p>
+<p><img src="/images/4.png" alt="1"><br>监测到宏任务队列有任务了，推入执行栈执行，输出123。</p>
+<p>稍微的讲下JS的代码执行流程：</p>
+<p>​	1.执行script代码，这里面有的是同步代码，有的是异步代码。同步代码呢，就直接执行，异步代码呢就交给浏览器相应的线程处理。</p>
+<p>​	2.浏览器得到之后，根据异步任务的要求开启线程，等线程处理完毕，就把相应的回调函数加入到相应的异步任务队列中。</p>
+<p>​	3.被加入的异步任务不会马上就进入到执行栈执行，等所有的同步任务执行完毕，就会从异步微任务队列中取出位于队首的回调任务，放入执行栈执行，执行完后异步微任务队列长度减1。</p>
+<p>​	4.继续取出位于队首的任务，放入执行栈中执行，以此类推，直到直到把异步微任务队列中的所有任务都执行完毕。<strong>注意，如果在执行微任务的过程中，又产生了微任务，那么会加入到队列的末尾，也会在这个周期被调用执行</strong>；</p>
+<p>​	5.异步微任务队列空了后，取出位于异步宏任务队列队首任务，放入执行栈，执行。</p>
+<p>​	6.当前宏任务执行完毕后，执行栈空。</p>
+<p>​	7.检查微任务队列，有就执行，没有再取下一个宏任务，循环。</p>
+<h4 id="是先宏任务还是先微任务呢？仅限目前我的水平理解："><a href="#是先宏任务还是先微任务呢？仅限目前我的水平理解：" class="headerlink" title="是先宏任务还是先微任务呢？仅限目前我的水平理解："></a>是先宏任务还是先微任务呢？仅限目前我的水平理解：</h4><p>​		首先搞清楚，宏任务是指什么宏任务，同步任务也是宏任务，同步宏任务和异步宏任务统称宏任务。</p>
+<p>​		如果你说的宏是同步宏+异步宏，肯定是是 先宏后微，先同步宏任务再异步微任务。</p>
+<p>​		因为同步宏肯定是先执行的（清空），之后执行异步微（清空），之后再执行异步宏（一个），之后再执行异步微（清空）……</p>
+<p>​		如果你说的宏仅仅只是异步宏，肯定是是 先微后宏啊！</p>
+<p>​		因为 执行异步宏之前，必须先清空异步微。</p>
+<h4 id="以我目前的认知水平，就是天王老子来了，也得先清空微任务，再开始异步宏任务。"><a href="#以我目前的认知水平，就是天王老子来了，也得先清空微任务，再开始异步宏任务。" class="headerlink" title="以我目前的认知水平，就是天王老子来了，也得先清空微任务，再开始异步宏任务。"></a>以我目前的认知水平，就是天王老子来了，也得先清空微任务，再开始异步宏任务。</h4><h4 id="异步微任务到底是啥玩意呢？"><a href="#异步微任务到底是啥玩意呢？" class="headerlink" title="异步微任务到底是啥玩意呢？"></a>异步微任务到底是啥玩意呢？</h4><p>​		有的函数，就是异步微任务函数，会加到微任务队列里面，<strong>插队！</strong></p>
+<p>​		Promise.then()方法接受一个函数作为参数，这个函数就会加到微任务队列里面。</p>
+<p>​		对了对了，promise里面的代码，会当作同步代码执行。</p>
+<h3 id="Talk-is-cheap-Show-me-the-code（放码过来！）"><a href="#Talk-is-cheap-Show-me-the-code（放码过来！）" class="headerlink" title="Talk is cheap. Show me the code（放码过来！）"></a>Talk is cheap. Show me the code（放码过来！）</h3><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  Promise<span class="token punctuation">.</span><span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
+  <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span>
+  <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">data</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+
+<span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+  console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+
+console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>答案呢，我先不说，先说流程。</p>
+<p>1.首先同步代码执行 ，输出1，遇到setTimeout，推到异步宏任务队列里面，遇到Promise，Promise里面可是同步任务，输出4，遇到resolve，改变Promise状态，把then的参数推到微任务队列里面，遇到setTimeout，推到异步宏任务队列里面，输出7。</p>
+<p>2.同步代码执行完毕，开始事件循环，检查微任务队列，有任务，执行，输出5，微任务队列清空，开始下一个宏任务。</p>
+<p>3.从队首拿出任务，是第一推入的setTimeout，执行：输出2，遇到Promise，加入微任务。</p>
+<p>4.<strong>（想开启下个异步宏任务，就把那个异步微任务队列给我清空！！！）</strong>，输出3，微任务队列清空。</p>
+<p>5.下个宏任务，输出6。</p>
+<p>1，4，7，5，2，3，6</p>
+<p><strong>重要的一点哦！</strong>：then的链式调用会被当作同步代码执行，在同步代码执行阶段，then链式调用中所有的then都会一次性调用完，<strong>但是！</strong>，then的回调函数是不会随着then的调用加入微任务队列的，那什么时候加入呢？</p>
+<p><strong>then指定的回调函数加入微任务队列的判断标准只有一个：</strong></p>
+<p>​		<em><strong>promise对象的状态变为了fulfilled或rejected</strong></em></p>
+<p><strong>那又是怎么变得呢？</strong></p>
+<p>​		<em><strong>在Promise里调用resolve（）或者reject（）  或者就直接调动Promise.resolve()或Promise.reject()</strong></em></p>
+<p>试一下？？</p>
+<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+<span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+    <span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+        console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
+        <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+        console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+        console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span>
+    <span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span>
+<span class="token keyword">new</span> <span class="token class-name">Promise</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">resolve<span class="token punctuation">,</span> reject</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span>
+    <span class="token function">resolve</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
+    console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span>
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>1 7 2 3 8 4 6 5 0</p>
+<p>流程：</p>
+<p>我去吃饭，回来写</p>
 
                 
             </div>
