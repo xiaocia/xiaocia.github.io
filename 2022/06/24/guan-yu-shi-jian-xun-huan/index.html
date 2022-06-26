@@ -473,7 +473,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>1，4，7，5，2，3，6</p>
 <p><strong>重要的一点哦！</strong>：then的链式调用会被当作同步代码执行，在同步代码执行阶段，then链式调用中所有的then都会一次性调用完，<strong>但是！</strong>，then的回调函数是不会随着then的调用加入微任务队列的，那什么时候加入呢？</p>
 <p><strong>then指定的回调函数加入微任务队列的判断标准只有一个：</strong></p>
-<p>​		<em><strong>promise对象的状态变为了fulfilled或rejected</strong></em></p>
+<p>​		<em><strong>对应的，对应的，对应的promise对象的状态变为了fulfilled或rejected</strong></em></p>
 <p><strong>那又是怎么变得呢？</strong></p>
 <p>​		<em><strong>在Promise里调用resolve（）或者reject（）  或者就直接调动Promise.resolve()或Promise.reject()</strong></em></p>
 <p>试一下？？</p>
@@ -505,7 +505,15 @@ console<span class="token punctuation">.</span><span class="token function">log<
 
 <p>1 7 2 3 8 4 6 5 0</p>
 <p>流程：</p>
-<p>我去吃饭，回来写</p>
+<p>1.执行代码，遇到setTimeout，开启计时器流程，因为时间是0，马上放到宏任务队列，遇到Promise，执行里面的同步代码，执行，输出1，以及把<strong>自己then</strong>里面的放到微任务队列里面，遇到Promise，执行里面的同步代码，输出7，把then放到微任务队列。</p>
+<p>2.开始清空微任务队列：第一个微任务是：<br><img src="/images/5.png" alt="1"></p>
+<p>这个样子的！，卧槽！真复杂，慢慢一步一步来。</p>
+<p>输出2，3遇到resolve，把自己then的函数方法微任务队列里，<em><strong>注意注意注意！</strong></em>，此时，现在的then函数执行完毕，返回的Promise对象状态改变，then指定的回调函数加入到微任务队列，此微任务执行完毕，下一个。</p>
+<p>3.输出8，执行下一个，输出4，返回的Promise对象状态改变，then指定的回调函数加入到微任务队列，下一步，输出6，最后输出5。</p>
+<p>4.微任务队列清空，取出宏任务，输出0</p>
+<p>1 7 2 3 8 4 6 5 0</p>
+<p>浏览器的事件循环就说到为此啦，接下来说一下，node中的事件循环：</p>
+<h3 id="node中的事件循环"><a href="#node中的事件循环" class="headerlink" title="node中的事件循环"></a>node中的事件循环</h3><p>​   今天我想烫火锅，明天再继续写。</p>
 
                 
             </div>
@@ -808,6 +816,15 @@ console<span class="token punctuation">.</span><span class="token function">log<
     
 
 </main>
+<!--PC版-->
+<div id="SOHUCS" ></div>
+<script charset="utf-8" type="text/javascript" src="https://cy-cdn.kuaizhan.com/upload/changyan.js" ></script>
+<script type="text/javascript">
+window.changyan.api.config({
+appid: 'cyw8X6Tes',
+conf: 'prod_dfb3b438cd940dd7eacdbd2f82ade7a6'
+});
+</script>
 
 
 
