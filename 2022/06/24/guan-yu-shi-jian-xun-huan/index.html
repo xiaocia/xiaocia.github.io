@@ -476,6 +476,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>​		<em><strong>对应的，对应的，对应的promise对象的状态变为了fulfilled或rejected</strong></em></p>
 <p><strong>那又是怎么变得呢？</strong></p>
 <p>​		<em><strong>在Promise里调用resolve（）或者reject（）  或者就直接调动Promise.resolve()或Promise.reject()</strong></em></p>
+<p>(还可以再Promise中使用throw抛出错误，也会把Promise的状态改为rejected)</p>
 <p>试一下？？</p>
 <pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token function">setTimeout</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">&#123;</span>
     console<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
@@ -512,8 +513,14 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>3.输出8，执行下一个，输出4，返回的Promise对象状态改变，then指定的回调函数加入到微任务队列，下一步，输出6，最后输出5。</p>
 <p>4.微任务队列清空，取出宏任务，输出0</p>
 <p>1 7 2 3 8 4 6 5 0</p>
+<p>补充下Promise吧：</p>
+<p>1.Promise中不改变状态，那么then中指定的回调函数是不会加入带微任务队列的，就不会执行，自然不会输出。</p>
+<p>2.不做处理，then返回的是一个状态相同的Promise。</p>
+<p>3.如果显示的返回了 比如： return 2 ，then返回的Promise状态是resolved，值为2。</p>
+<p>4.return 返回一个promise对象，则新promise就是return的promsie。</p>
+<p>5.通过throw主动抛出错误或者代码出现错误，则promise的状态为rejected，值为throw的值</p>
 <p>浏览器的事件循环就说到为此啦，接下来说一下，node中的事件循环：</p>
-<h3 id="node中的事件循环"><a href="#node中的事件循环" class="headerlink" title="node中的事件循环"></a>node中的事件循环</h3><p>​   今天我想烫火锅，明天再继续写。</p>
+<h3 id="node中的事件循环"><a href="#node中的事件循环" class="headerlink" title="node中的事件循环"></a>node中的事件循环</h3><p>   今天我想烫火锅，明天再继续写。</p>
 
                 
             </div>
